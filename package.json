@@ -1,0 +1,10 @@
+{
+  "name": "beat4beat-webapp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Beat for Beat style moderator board",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js --port 4173"
+  }
+}

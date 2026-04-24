@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beat4Beat Moderator Board</title>
+    <meta
+      name="description"
+      content="Moderator-controlled Beat for Beat style board with rounds, tiles, and team scoring."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Beat for Beat-style moderator board</p>
+          <h1>Beat4Beat</h1>
+          <p class="hero-copy">
+            Run rounds, reveal tiles, rotate turns, and keep score for as many
+            teams as you need.
+          </p>
+        </div>
+        <nav class="top-nav" aria-label="Main views">
+          <button class="nav-button is-active" data-view="game">Game</button>
+          <button class="nav-button" data-view="admin">Admin</button>
+        </nav>
+      </header>
+
+      <main>
+        <section id="game-view" class="view is-active" aria-label="Game view">
+          <div class="game-layout">
+            <section class="panel spotlight">
+              <div class="round-header">
+                <div>
+                  <p class="section-label">Current round</p>
+                  <h2 id="round-name">Round</h2>
+                  <p id="round-meta" class="muted"></p>
+                  <p id="round-progress" class="round-progress"></p>
+                </div>
+                <div class="round-actions">
+                  <button id="shuffle-start-button" class="ghost-button">
+                    Shuffle starter
+                  </button>
+                  <button id="next-round-button" class="primary-button">
+                    Next round
+                  </button>
+                  <button id="reset-round-button" class="ghost-button">
+                    Reset round
+                  </button>
+                </div>
+              </div>
+
+              <div class="status-strip">
+                <div class="status-card status-card-compact">
+                  <span class="status-title">Active team</span>
+                  <strong id="active-team-name">-</strong>
+                  <span id="active-team-tag" class="status-helper">Waiting for teams</span>
+                </div>
+                <div class="status-card status-card-compact">
+                  <span class="status-title">Reveal points</span>
+                  <strong id="round-points">0</strong>
+                  <span class="status-helper">Points for a correct guess now</span>
+                </div>
+              </div>
+
+              <div id="game-board" class="board" aria-live="polite"></div>
+              <div id="game-score-strip" class="game-score-strip"></div>
+
+              <div class="moderator-console">
+                <div class="console-card">
+                  <span class="section-label">Moderator controls</span>
+                  <div class="console-actions">
+                    <button id="pass-turn-button" class="ghost-button">
+                      Pass turn
+                    </button>
+                    <button id="award-points-button" class="primary-button">
+                      Mark correct answer
+                    </button>
+                  </div>
+                </div>
+                <div class="console-card">
+                  <span class="section-label">Latest reveal</span>
+                  <p id="last-reveal-text" class="reveal-summary">
+                    No tiles revealed yet.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <aside class="panel scoreboard-panel">
+              <div class="sidebar-header">
+                <div>
+                  <p class="section-label">Game controls</p>
+                  <h3>Planner</h3>
+                </div>
+                <div class="sidebar-actions">
+                  <button id="new-game-button" class="ghost-button">
+                    New game
+                  </button>
+                  <button id="reset-scores-button" class="ghost-button">
+                    Reset scores
+                  </button>
+                </div>
+              </div>
+              <div class="live-round-card">
+                <p class="section-label">Planner</p>
+                <div id="live-round-list" class="live-round-list"></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="admin-view" class="view" aria-label="Admin view">
+          <div class="admin-grid">
+            <section class="panel admin-wide">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label">Storage</p>
+                  <h2>Saved games</h2>
+                </div>
+                <div class="inline-actions">
+                  <button id="save-current-game-button" class="primary-button">
+                    Save current game
+                  </button>
+                  <button id="reload-server-button" class="ghost-button">
+                    Reload from server
+                  </button>
+                </div>
+              </div>
+              <div class="storage-toolbar">
+                <label class="field storage-name-field">
+                  <span>Save as</span>
+                  <input
+                    id="save-game-name-input"
+                    class="text-input"
+                    type="text"
+                    placeholder="Friday quiz semifinal"
+                  />
+                </label>
+                <div class="storage-status">
+                  <span class="section-label">Sync status</span>
+                  <p id="storage-status-text">Connecting to backend…</p>
+                </div>
+              </div>
+              <div id="saved-games-list" class="stack"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label">Configuration</p>
+                  <h2>Teams</h2>
+                </div>
+                <button id="add-team-button" class="primary-button">
+                  Add team
+                </button>
+              </div>
+              <div id="teams-admin" class="stack"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label">Content</p>
+                  <h2>Word sets</h2>
+                </div>
+                <button id="add-word-set-button" class="primary-button">
+                  Add word set
+                </button>
+              </div>
+              <div id="word-sets-admin" class="stack"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label">Content</p>
+                  <h2>Instrument sets</h2>
+                </div>
+                <button id="add-instrument-set-button" class="primary-button">
+                  Add instrument set
+                </button>
+              </div>
+              <div id="instrument-sets-admin" class="stack"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label">Content</p>
+                  <h2>Moderator sets</h2>
+                </div>
+                <button id="add-moderator-set-button" class="primary-button">
+                  Add moderator set
+                </button>
+              </div>
+              <div id="moderator-sets-admin" class="stack"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-heading">
+                <div>
+                  <p class="section-label">Planner</p>
+                  <h2>Rounds</h2>
+                </div>
+                <button id="add-round-button" class="primary-button">
+                  Add round
+                </button>
+              </div>
+              <div id="rounds-admin" class="stack"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
