@@ -67,7 +67,7 @@ button {
 .app-shell {
   width: min(1440px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 28px 0 56px;
+  padding: 28px 0 108px;
   position: relative;
   z-index: 1;
 }
@@ -188,6 +188,19 @@ h3 {
 
 .view.is-active {
   display: block;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 50;
+}
+
+.bottom-nav-button {
+  min-width: 180px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
 }
 
 .game-layout {
@@ -394,6 +407,10 @@ h3 {
   padding: 14px;
   display: grid;
   gap: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    var(--team-surface, rgba(255, 255, 255, 0.04));
+  border-color: color-mix(in srgb, var(--team-color, rgba(255, 255, 255, 0.3)) 44%, rgba(255, 255, 255, 0.08));
 }
 
 .game-score-strip {
@@ -430,8 +447,10 @@ h3 {
 }
 
 .score-row.is-active {
-  border-color: rgba(255, 201, 77, 0.55);
-  box-shadow: inset 0 0 0 1px rgba(255, 201, 77, 0.2);
+  border-color: rgba(255, 201, 77, 0.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 201, 77, 0.3),
+    0 0 0 1px rgba(255, 201, 77, 0.12);
 }
 
 .score-row.is-active .team-chip strong {
@@ -513,6 +532,13 @@ h3 {
   gap: 12px;
 }
 
+.team-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    var(--team-surface, rgba(255, 255, 255, 0.04));
+  border-color: color-mix(in srgb, var(--team-color, rgba(255, 255, 255, 0.3)) 44%, rgba(255, 255, 255, 0.08));
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -551,6 +577,74 @@ h3 {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.results-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.results-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.results-card {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  display: grid;
+  gap: 8px;
+}
+
+.results-card strong {
+  font-size: 1.8rem;
+}
+
+.results-list {
+  display: grid;
+  gap: 12px;
+}
+
+.result-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    var(--team-surface, rgba(255, 255, 255, 0.04));
+  border: 1px solid color-mix(in srgb, var(--team-color, rgba(255, 255, 255, 0.3)) 44%, rgba(255, 255, 255, 0.08));
+}
+
+.result-rank {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.result-row.is-first .result-rank {
+  background: rgba(255, 201, 77, 0.2);
+  color: var(--gold);
+}
+
+.result-team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.result-score {
+  font-size: 2rem;
+  font-weight: 700;
 }
 
 .saved-game-card {
@@ -688,6 +782,7 @@ h3 {
   .app-shell {
     width: min(100% - 20px, 1440px);
     padding-top: 16px;
+    padding-bottom: 112px;
   }
 
   .hero,
@@ -715,5 +810,13 @@ h3 {
 
   .game-score-strip {
     grid-template-columns: 1fr;
+  }
+
+  .result-row {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .result-score {
+    grid-column: 2;
   }
 }

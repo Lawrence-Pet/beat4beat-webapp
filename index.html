@@ -24,6 +24,7 @@
         <nav class="top-nav" aria-label="Main views">
           <button class="nav-button is-active" data-view="game">Game</button>
           <button class="nav-button" data-view="admin">Admin</button>
+          <button class="nav-button" data-view="results">Results</button>
         </nav>
       </header>
 
@@ -212,7 +213,30 @@
             </section>
           </div>
         </section>
+
+        <section id="results-view" class="view" aria-label="Results view">
+          <section class="panel results-panel">
+            <div class="section-heading">
+              <div>
+                <p class="section-label">Standings</p>
+                <h2>Results</h2>
+              </div>
+              <div class="inline-actions">
+                <button class="ghost-button" data-view="game">Back to game</button>
+                <button class="ghost-button" data-view="admin">Open admin</button>
+              </div>
+            </div>
+            <div id="results-summary" class="results-summary"></div>
+            <div id="results-list" class="results-list"></div>
+          </section>
+        </section>
       </main>
+
+      <div class="bottom-nav">
+        <button class="primary-button bottom-nav-button" data-view="results">
+          Open results
+        </button>
+      </div>
     </div>
 
     <script src="app.js"></script>

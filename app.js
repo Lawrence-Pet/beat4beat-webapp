@@ -30,6 +30,30 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function colorWithAlpha(color, alpha) {
+  if (typeof color !== "string") {
+    return `rgba(255, 255, 255, ${alpha})`;
+  }
+
+  const value = color.trim();
+  const shortHexMatch = value.match(/^#([\da-f]{3})$/i);
+  if (shortHexMatch) {
+    const [red, green, blue] = shortHexMatch[1].split("").map((channel) => parseInt(channel + channel, 16));
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+  }
+
+  const hexMatch = value.match(/^#([\da-f]{6})$/i);
+  if (hexMatch) {
+    const hex = hexMatch[1];
+    const red = parseInt(hex.slice(0, 2), 16);
+    const green = parseInt(hex.slice(2, 4), 16);
+    const blue = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+  }
+
+  return value;
+}
+
 function normalizeIndex(value, length) {
   if (!length) {
     return 0;
@@ -133,7 +157,12 @@ function normalizeState(candidate) {
     ...base,
     ...(candidate || {})
   };
-  next.view = next.view === "admin" ? "admin" : "game";
+  next.view =
+    next.view === "admin"
+      ? "admin"
+      : next.view === "results"
+        ? "results"
+        : "game";
   next.teams = Array.isArray(next.teams) ? next.teams : base.teams;
   next.wordSets = Array.isArray(next.wordSets) ? next.wordSets : base.wordSets;
   next.instrumentSets = Array.isArray(next.instrumentSets)
@@ -824,7 +853,10 @@ function getScoreboardMarkup(runtime, compact = false) {
   return state.teams
     .map(
       (team, index) => `
-        <article class="score-row ${compact ? "compact" : ""} ${runtime?.activeTeamIndex === index ? "is-active" : ""}">
+        <article
+          class="score-row ${compact ? "compact" : ""} ${runtime?.activeTeamIndex === index ? "is-active" : ""}"
+          style="--team-color:${team.color};--team-surface:${colorWithAlpha(team.color, 0.5)};"
+        >
           <header>
             <div class="team-chip">
               <span class="team-swatch" style="background:${team.color}"></span>
@@ -1006,7 +1038,10 @@ function renderTeamsAdmin() {
   container.innerHTML = state.teams
     .map(
       (team) => `
-        <article class="team-card">
+        <article
+          class="team-card"
+          style="--team-color:${team.color};--team-surface:${colorWithAlpha(team.color, 0.5)};"
+        >
           <div class="field-grid">
             <label class="field">
               <span>Name</span>
@@ -1026,6 +1061,65 @@ function renderTeamsAdmin() {
     .join("");
 }
 
+function getSortedTeams() {
+  return [...state.teams].sort((left, right) => right.score - left.score);
+}
+
+function renderResults() {
+  const summary = document.querySelector("#results-summary");
+  const list = document.querySelector("#results-list");
+  if (!summary || !list) {
+    return;
+  }
+
+  if (!state.teams.length) {
+    summary.innerHTML = `<div class="empty-state">No teams configured yet.</div>`;
+    list.innerHTML = "";
+    return;
+  }
+
+  const ranked = getSortedTeams();
+  const topScore = ranked[0]?.score ?? 0;
+  const totalTeams = ranked.length;
+  const totalPoints = ranked.reduce((sum, team) => sum + team.score, 0);
+
+  summary.innerHTML = `
+    <article class="results-card">
+      <span class="section-label">Leader</span>
+      <strong>${escapeHtml(ranked[0]?.name ?? "-")}</strong>
+      <span class="muted">${topScore} points</span>
+    </article>
+    <article class="results-card">
+      <span class="section-label">Teams</span>
+      <strong>${totalTeams}</strong>
+      <span class="muted">Active on scoreboard</span>
+    </article>
+    <article class="results-card">
+      <span class="section-label">Total points</span>
+      <strong>${totalPoints}</strong>
+      <span class="muted">Across all teams</span>
+    </article>
+  `;
+
+  list.innerHTML = ranked
+    .map(
+      (team, index) => `
+        <article
+          class="result-row ${index === 0 ? "is-first" : ""}"
+          style="--team-color:${team.color};--team-surface:${colorWithAlpha(team.color, 0.5)};"
+        >
+          <div class="result-rank">${index + 1}</div>
+          <div class="result-team">
+            <span class="team-swatch" style="background:${team.color}"></span>
+            <strong>${escapeHtml(team.name)}</strong>
+          </div>
+          <div class="result-score">${team.score}</div>
+        </article>
+      `
+    )
+    .join("");
+}
+
 function renderGame() {
   const round = getRound();
   const runtime = ensureRuntime();
@@ -1033,6 +1127,7 @@ function renderGame() {
 
   document.querySelector("#game-view").classList.toggle("is-active", state.view === "game");
   document.querySelector("#admin-view").classList.toggle("is-active", state.view === "admin");
+  document.querySelector("#results-view").classList.toggle("is-active", state.view === "results");
   document.querySelectorAll(".nav-button").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.view === state.view);
   });
@@ -1053,7 +1148,9 @@ function renderGame() {
   }
 
   document.querySelector("#round-name").textContent = round.name;
-  document.querySelector("#round-meta").textContent = `${round.mode === "word" ? "Word" : round.mode === "instrument" ? "Instrument" : "Moderator"} mode • ${round.mode === "moderator" ? (currentSet?.name ?? "Moderator set") : `${getRoundItemCount(round)} tiles • ${currentSet?.name ?? "No content set"}`}`;
+  document.querySelector("#round-meta").textContent = round.mode === "moderator"
+    ? "Moderator mode"
+    : `${round.mode === "word" ? "Word" : "Instrument"} mode • ${getRoundItemCount(round)} tiles`;
   document.querySelector("#round-progress").textContent = round.mode === "moderator"
     ? `Round ${state.currentRoundIndex + 1} of ${state.rounds.length} • Manual scoring`
     : `Round ${state.currentRoundIndex + 1} of ${state.rounds.length} • ${runtime.revealedCount}/${getRoundItemCount(round)} tiles revealed`;
@@ -1097,6 +1194,7 @@ function render() {
   renderSets("#instrument-sets-admin", "instrument", state.instrumentSets);
   renderSets("#moderator-sets-admin", "moderator", state.moderatorSets);
   renderRounds();
+  renderResults();
 }
 
 document.addEventListener("click", (event) => {
@@ -1213,6 +1311,9 @@ document
   .querySelector("#save-current-game-button")
   .addEventListener("click", saveCurrentGameAsPreset);
 document.querySelector("#reload-server-button").addEventListener("click", reloadFromServer);
+document.querySelectorAll("[data-view]").forEach((button) => {
+  button.addEventListener("click", () => switchView(button.dataset.view));
+});
 
 render();
 bootstrap();
